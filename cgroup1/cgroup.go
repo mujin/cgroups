@@ -259,6 +259,10 @@ func (c *cgroup) Delete() error {
 		// kernel prevents cgroups with running process from being removed, check the tree is empty
 		procs, err := c.processes(s.Name(), true, cgroupProcs)
 		if err != nil {
+			if errors.Is(err, fs.ErrNotExist) {
+				// this subsystem is already deleted, nothing to do
+				continue
+			}
 			return err
 		}
 		if len(procs) > 0 {
